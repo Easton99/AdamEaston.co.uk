@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Building CityRubbish — Adam Easton Devlog</title>
+  <meta name="description" content="How I built a crowdsourced map of public bin locations across UK cities using React, Leaflet, and Supabase.">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">adam<span>.</span>dev</a>
+    <button class="hamburger" id="hamburger">☰</button>
+    <div class="nav-links">
+      <a href="/projects/">Projects</a>
+      <a href="/blog/">Devlog</a>
+      <a href="/about.html">About</a>
+      <a href="https://github.com/Easton99" target="_blank" class="nav-gh">GitHub ↗</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-narrow">
+
+  <div class="post-header">
+    <div class="post-meta">
+      <span>January 2026</span>
+      <span>CityRubbish</span>
+      <span>React · Leaflet · Supabase</span>
+    </div>
+    <h1>Building CityRubbish — a crowdsourced map of public bins</h1>
+    <p class="post-lead">I wanted to find a bin. There was no good way to find a bin. So I built a crowdsourced map of them. As you do.</p>
+  </div>
+
+  <div class="post-body">
+
+    <h2>The problem</h2>
+
+    <p>The problem is stupid simple. You're walking somewhere, you've got a wrapper in your hand, and you can't find a bin anywhere. Google Maps doesn't reliably show public bins. There's no dedicated app for it. You end up walking around holding your rubbish like an idiot for ten minutes.</p>
+
+    <p>I figured if I could make it easy for people to drop a pin wherever they see a bin, and easy for other people to confirm it's still there, you'd end up with a pretty accurate live map without any official data collection involved.</p>
+
+    <p>That's CityRubbish. A crowdsourced map of public bin locations across UK cities. Users find bins, add bins, and vote on whether they're still there.</p>
+
+    <h2>The tech stack</h2>
+
+    <p>I wanted to build this quickly and keep it simple. I went with:</p>
+
+    <ul>
+      <li><strong>React + Vite</strong> — fast dev server, good ecosystem</li>
+      <li><strong>Leaflet</strong> — free, no API key, OpenStreetMap tiles</li>
+      <li><strong>Supabase</strong> — PostgreSQL with a nice dashboard, magic link auth, Row Level Security baked in</li>
+      <li><strong>PWA</strong> — installable on mobile so it feels like a real app</li>
+    </ul>
+
+    <p>The whole thing was built and initially hosted on Replit, which made iteration really fast — push code, it deploys, done.</p>
+
+    <h2>Why Supabase?</h2>
+
+    <p>I didn't want to write a backend. Supabase gave me everything I needed: a PostgreSQL database with a visual editor, built-in auth with email magic links (no passwords to store), and Row Level Security policies that mean I never expose data I shouldn't. The SQL editor in the dashboard let me write and test all the RPC functions directly.</p>
+
+    <p>Magic links specifically were the right call. No one wants to create an account with a password just to add a bin to a map. You type your email, click a link, you're in. Low friction. High trust.</p>
+
+    <pre><code>-- Supabase RPC: check before adding a bin
+SELECT check_daily_bin_limit(auth.uid(), city_slug);</code></pre>
+
+    <h2>The data model</h2>
+
+    <p>Five tables: <code>cities</code>, <code>profiles</code>, <code>bins</code>, <code>votes</code>, <code>karma_events</code>. Simple relational stuff.</p>
+
+    <p>Bins have a <code>status</code> field: <code>active</code> or <code>needs_review</code>. Votes push bins between these states — enough "missing" votes and a bin moves to needs review. Enough "confirm" votes and it comes back. The community polices the data without me having to do anything.</p>
+
+    <p>The karma system is just <code>karma_events</code> rows. Add a bin that gets confirmed: plus karma. Add a bin that gets marked missing: minus karma. I didn't overthink it. It's not points for anything — it just gives accurate contributors a visible score and makes it slightly satisfying to be right about a bin.</p>
+
+    <h2>Bin types</h2>
+
+    <p>Six types: General Waste, Recycling, Food Waste, Glass, Paper/Cardboard, and Ashtray. A bin can have multiple types if it's one of those combination units. The filter panel lets you show only the type you actually need.</p>
+
+    <p>The markers on the map use emoji by type. Multi-type bins get a recycling symbol. It sounds janky but it actually works well at map scale.</p>
+
+    <h2>The add-bin flow</h2>
+
+    <p>I spent most of my UX time on this because it needed to be frictionless on mobile. Tapping the + FAB puts the map into "location selection" mode — a crosshair appears at the centre. You pan the map to move the crosshair over where the bin is, then tap Confirm. That opens the Add Bin form with the coordinates locked in. You pick the type and submit.</p>
+
+    <p>There's a hard limit of 3 new bins per user per day. Mostly to prevent spam, but also just to keep things manageable.</p>
+
+    <h2>Nearest bins</h2>
+
+    <p>The 📍 FAB asks for your location and calls a Supabase RPC function that does the distance calculation in SQL using the Haversine formula. It returns the five nearest bins with their distances. Each one has a "Navigate" button that opens Google Maps directions. This is the feature that would actually be useful in real life — you just want to know where the nearest bin is right now.</p>
+
+    <pre><code>-- Haversine distance in the RPC
+( 6371000 * acos(
+    cos(radians(user_lat)) * cos(radians(latitude)) *
+    cos(radians(longitude) - radians(user_lng)) +
+    sin(radians(user_lat)) * sin(radians(latitude))
+) ) AS distance_metres</code></pre>
+
+    <h2>The admin dashboard</h2>
+
+    <p>Admins (just me, flagged in the profiles table) get an extra icon in the header that opens a moderation dashboard. It shows bins by city, their status, who added them, and lets you manually flip statuses or delete entries. Nothing fancy. I just needed a way to clean up obvious spam without writing SQL every time.</p>
+
+    <h2>Cities</h2>
+
+    <p>London is live. Manchester, Birmingham, Edinburgh, and Bristol are in the city picker as "coming soon". The city-switching architecture is already built — each city just needs some initial seed data to be worth using. The plan was to roll them out as I had time to seed them or as users started adding bins there.</p>
+
+    <h2>What I'd do differently</h2>
+
+    <p>The bin type data model is a bit loose — types are stored as a comma-separated string rather than a proper junction table. It works fine at this scale but it's the thing that'd annoy me if it got bigger.</p>
+
+    <p>I also had the map re-render more than it needed to on state changes. The Leaflet + React integration requires a bit of care to stop the map component recreating itself when unrelated state updates. That took some debugging.</p>
+
+    <h2>What's next</h2>
+
+    <p>Possibly nothing. It was a fun build and it works. I might seed the other cities if I ever feel like it. Might add photo uploads for bins so you can actually verify what you're looking at. Might not. The best thing about building for fun is there's no roadmap.</p>
+
+    <hr>
+
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; padding-top: 8px;">
+      <a href="/blog/" class="btn btn-ghost">← Back to devlog</a>
+    </div>
+
+  </div>
+
+</div>
+
+<footer>
+  <p>Built by Adam Easton &mdash; <a href="https://github.com/Easton99" target="_blank">GitHub</a> &middot; <a href="mailto:adameaston99@gmail.com">Email</a></p>
+</footer>
+
+<script src="../assets/js/site.js"></script>
+</body>
+</html>
