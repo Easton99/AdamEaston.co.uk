@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Projects — Adam Easton</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">adam<span>.</span>dev</a>
+    <button class="hamburger" id="hamburger">☰</button>
+    <div class="nav-links">
+      <a href="/projects/">Projects</a>
+      <a href="/blog/">Devlog</a>
+      <a href="/about.html">About</a>
+      <a href="https://github.com/Easton99" target="_blank" class="nav-gh">GitHub ↗</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="page-title">
+    <h1>Projects</h1>
+    <p>Things I built for fun, curiosity, or because no suitable thing existed.</p>
+  </div>
+
+  <!-- ── Hamster AI ──────────────────────────────────────────── -->
+  <div id="hamster-ai" style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 36px; margin-bottom: 24px;">
+    <div style="display: flex; align-items: flex-start; gap: 20px; flex-wrap: wrap;">
+      <div style="font-size: 56px; line-height: 1;">🐹</div>
+      <div style="flex: 1; min-width: 240px;">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px;">
+          <h2 style="font-size: 28px; font-weight: 700; margin: 0;">Hamster AI</h2>
+          <span style="font-family: 'Space Mono', monospace; font-size: 11px; background: #10B98120; border: 1px solid #10B981; color: #10B981; padding: 2px 10px; border-radius: 20px;">Active</span>
+        </div>
+        <p style="color: var(--muted); font-size: 16px; margin-bottom: 20px;">A lightweight, local-first AI companion for Windows. Sits in your system tray, helps you remember things, set reminders, and have a chat — all without a single byte leaving your machine.</p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px;">
+          <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px;">
+            <p style="font-family: 'Space Mono', monospace; font-size: 10px; color: var(--orange); margin-bottom: 4px;">BACKEND</p>
+            <p style="margin: 0; font-size: 14px;">Ollama (local LLM)</p>
+          </div>
+          <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px;">
+            <p style="font-family: 'Space Mono', monospace; font-size: 10px; color: var(--orange); margin-bottom: 4px;">UI</p>
+            <p style="margin: 0; font-size: 14px;">PySide6 (Qt)</p>
+          </div>
+          <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px;">
+            <p style="font-family: 'Space Mono', monospace; font-size: 10px; color: var(--orange); margin-bottom: 4px;">STORAGE</p>
+            <p style="margin: 0; font-size: 14px;">SQLite (local)</p>
+          </div>
+          <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px;">
+            <p style="font-family: 'Space Mono', monospace; font-size: 10px; color: var(--orange); margin-bottom: 4px;">PLATFORM</p>
+            <p style="margin: 0; font-size: 14px;">Windows 10/11</p>
+          </div>
+        </div>
+
+        <h3 style="font-size: 16px; color: var(--text); margin-bottom: 12px; font-family: 'Space Grotesk', sans-serif;">What it does</h3>
+        <ul style="color: var(--muted); font-size: 14px; margin-bottom: 24px;">
+          <li>Fully offline — all inference runs locally, no cloud, no subscriptions</li>
+          <li>Plugin system — 8 optional plugins, enable only what you want</li>
+          <li>Memory — remembers facts, todos, and notes across sessions</li>
+          <li>Mode system — Work, Focus, Private, and Game Safe modes</li>
+          <li>Anti-cheat safe — invisible to anti-cheat, tested with Vanguard and EAC</li>
+          <li>Mini widget — quick questions without opening the full chat</li>
+          <li>21 milestones, 283 passing tests</li>
+        </ul>
+
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <a href="https://hamster.adameaston.co.uk" class="btn btn-primary" target="_blank">Documentation ↗</a>
+          <a href="https://github.com/Easton99/hamster-ai" class="btn btn-ghost" target="_blank">GitHub ↗</a>
+          <a href="/blog/hamster-ai.html" class="btn btn-ghost">Read the devlog →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CityRubbish ────────────────────────────────────────── -->
+  <div id="cityrubbish" style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 36px; margin-bottom: 24px;">
+    <div style="display: flex; align-items: flex-start; gap: 20px; flex-wrap: wrap;">
+      <div style="font-size: 56px; line-height: 1;">🗑️</div>
+      <div style="flex: 1; min-width: 240px;">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px;">
+          <h2 style="font-size: 28px; font-weight: 700; margin: 0;">CityRubbish</h2>
+          <span style="font-family: 'Space Mono', monospace; font-size: 11px; background: #7C3AED20; border: 1px solid #7C3AED; color: #A78BFA; padding: 2px 10px; border-radius: 20px;">For fun</span>
+        </div>
+        <p style="color: var(--muted); font-size: 16px; margin-bottom: 20px;">A crowdsourced map of public bin locations across UK cities. Users can find their nearest bin, add missing ones to the map, vote on whether a bin is still there, and earn karma for accurate contributions.</p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px;">
+          <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px;">
+            <p style="font-family: 'Space Mono', monospace; font-size: 10px; color: var(--orange); margin-bottom: 4px;">FRONTEND</p>
+            <p style="margin: 0; font-size: 14px;">React + Vite</p>
+          </div>
+          <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px;">
+            <p style="font-family: 'Space Mono', monospace; font-size: 10px; color: var(--orange); margin-bottom: 4px;">MAPS</p>
+            <p style="margin: 0; font-size: 14px;">Leaflet + OpenStreetMap</p>
+          </div>
+          <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px;">
+            <p style="font-family: 'Space Mono', monospace; font-size: 10px; color: var(--orange); margin-bottom: 4px;">BACKEND</p>
+            <p style="margin: 0; font-size: 14px;">Supabase (PostgreSQL)</p>
+          </div>
+          <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px;">
+            <p style="font-family: 'Space Mono', monospace; font-size: 10px; color: var(--orange); margin-bottom: 4px;">TYPE</p>
+            <p style="margin: 0; font-size: 14px;">PWA (installable)</p>
+          </div>
+        </div>
+
+        <h3 style="font-size: 16px; color: var(--text); margin-bottom: 12px; font-family: 'Space Grotesk', sans-serif;">What it does</h3>
+        <ul style="color: var(--muted); font-size: 14px; margin-bottom: 24px;">
+          <li>Interactive map of public bins across London, Manchester, Birmingham, Edinburgh, Bristol</li>
+          <li>Add bin locations — up to 3 per day per user</li>
+          <li>Vote on bins: confirm they exist, mark as missing, or flag wrong type</li>
+          <li>Karma system — earn points for accurate contributions</li>
+          <li>Find nearest bins to your current location</li>
+          <li>Filter by bin type (general, recycling, dog waste, etc.)</li>
+          <li>PWA — installable on mobile like a native app</li>
+          <li>Admin dashboard for moderation</li>
+        </ul>
+
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <a href="https://github.com/Easton99/CityRubbish" class="btn btn-primary" target="_blank">GitHub ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align: center; padding: 40px 0 80px; color: var(--muted); font-family: 'Space Mono', monospace; font-size: 13px;">
+    // more things coming. probably.
+  </div>
+
+</div>
+
+<footer>
+  <p>Built by Adam Easton &mdash; <a href="https://github.com/Easton99" target="_blank">GitHub</a> &middot; <a href="mailto:adameaston99@gmail.com">Email</a></p>
+</footer>
+
+<script src="../assets/js/site.js"></script>
+</body>
+</html>

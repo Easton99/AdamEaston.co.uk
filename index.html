@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Adam Easton — I build stuff</title>
+  <meta name="description" content="Adam Easton's personal site. Vibe coding goofy things that probably shouldn't exist.">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">adam<span>.</span>dev</a>
+    <button class="hamburger" id="hamburger">☰</button>
+    <div class="nav-links">
+      <a href="/projects/">Projects</a>
+      <a href="/blog/">Devlog</a>
+      <a href="/about.html">About</a>
+      <a href="https://github.com/Easton99" target="_blank" class="nav-gh">GitHub ↗</a>
+    </div>
+  </div>
+</nav>
+
+<div class="hero">
+  <p class="hero-eyebrow">// hello world</p>
+  <h1>Hi, I'm <span class="highlight">Adam.</span></h1>
+  <p class="hero-sub">I vibe code things that probably shouldn't exist. Most of them work. Some of them are even useful.</p>
+  <div class="hero-cta">
+    <a href="/projects/" class="btn btn-primary">See what I've built</a>
+    <a href="/blog/" class="btn btn-ghost">Read the devlog</a>
+  </div>
+</div>
+
+<div class="page">
+
+  <section class="section">
+    <p class="section-title">// latest projects</p>
+    <h2>Things I made</h2>
+    <p class="section-lead">Mostly for fun. Occasionally useful.</p>
+
+    <div class="project-grid">
+
+      <a href="/projects/#hamster-ai" class="project-card">
+        <div class="project-card-emoji">🐹</div>
+        <h3>Hamster AI</h3>
+        <p>A local-first Windows desktop AI companion. Runs fully offline via Ollama. Has a plugin system, memory, reminders, and a hamster in your system tray.</p>
+        <div class="project-tags">
+          <span class="tag python">Python</span>
+          <span class="tag ollama">Ollama</span>
+          <span class="tag windows">Windows</span>
+        </div>
+        <div class="project-card-footer">
+          <span class="project-link">View project →</span>
+          <a href="https://github.com/Easton99/hamster-ai" target="_blank" onclick="event.stopPropagation()">GitHub ↗</a>
+        </div>
+      </a>
+
+      <a href="/projects/#cityrubbish" class="project-card">
+        <div class="project-card-emoji">🗑️</div>
+        <h3>CityRubbish</h3>
+        <p>A crowdsourced map of public bin locations across UK cities. Find your nearest bin, add missing ones, vote on accuracy, earn karma. Yes, really.</p>
+        <div class="project-tags">
+          <span class="tag react">React</span>
+          <span class="tag supabase">Supabase</span>
+          <span class="tag pwa">PWA</span>
+        </div>
+        <div class="project-card-footer">
+          <span class="project-link">View project →</span>
+          <a href="https://github.com/Easton99/CityRubbish" target="_blank" onclick="event.stopPropagation()">GitHub ↗</a>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <section class="section">
+    <p class="section-title">// devlog</p>
+    <h2>What I've been up to</h2>
+    <p class="section-lead">Notes from the vibe coding sessions.</p>
+
+    <div class="blog-list">
+      <a href="/blog/hamster-ai.html" class="blog-card">
+        <span class="blog-card-date">May 2026</span>
+        <div class="blog-card-body">
+          <h3>Building Hamster AI — a local-first AI companion for Windows</h3>
+          <p>Why I built a desktop AI with a hamster mascot, how it works, and what I learned along the way.</p>
+        </div>
+      </a>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <p>Built by Adam Easton &mdash; <a href="https://github.com/Easton99" target="_blank">GitHub</a> &middot; <a href="mailto:adameaston99@gmail.com">Email</a></p>
+</footer>
+
+<script src="assets/js/site.js"></script>
+</body>
+</html>

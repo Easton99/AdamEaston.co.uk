@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Building Hamster AI — Adam Easton Devlog</title>
+  <meta name="description" content="How I built a local-first Windows desktop AI companion with a hamster mascot, plugin system, and 21 milestones of Python.">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">adam<span>.</span>dev</a>
+    <button class="hamburger" id="hamburger">☰</button>
+    <div class="nav-links">
+      <a href="/projects/">Projects</a>
+      <a href="/blog/">Devlog</a>
+      <a href="/about.html">About</a>
+      <a href="https://github.com/Easton99" target="_blank" class="nav-gh">GitHub ↗</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-narrow">
+
+  <div class="post-header">
+    <div class="post-meta">
+      <span>May 2026</span>
+      <span>Hamster AI</span>
+      <span>Python · PySide6 · Ollama</span>
+    </div>
+    <h1>Building Hamster AI — a local-first AI companion for Windows</h1>
+    <p class="post-lead">I wanted an AI assistant that lived on my PC, not in the cloud. I didn't want subscriptions, accounts, or my conversations leaving my machine. So I built one. With a hamster.</p>
+  </div>
+
+  <div class="post-body">
+
+    <h2>The idea</h2>
+
+    <p>I use AI tools a lot. But I kept running into the same frustrations — everything requires an account, everything sends your data somewhere, and none of it integrates with what's actually happening on your PC. I wanted something that sat quietly in my system tray, knew what I was doing, could remember things I told it, and would shut up when I was gaming or in a work call.</p>
+
+    <p>I also wanted it to be honest. Most AI assistants are weirdly sycophantic — they'll agree with everything you say and pretend they can do things they can't. I wanted one that would push back when I was wrong and say "I don't know" when it didn't know.</p>
+
+    <p>So I spec'd out Hamster AI. Local LLM via Ollama. Python. PySide6 for the UI. SQLite for memory. A plugin system so I could add features without breaking everything. And a hamster, because why not.</p>
+
+    <h2>Why local-first?</h2>
+
+    <p>The short answer: privacy and control. The longer answer:</p>
+
+    <ul>
+      <li>I game. Anti-cheat systems are aggressive. I didn't want something hooking into cloud APIs while Vanguard was running.</li>
+      <li>I sometimes work from home through a corporate VPN. Anything that could accidentally send work context to an external server is a non-starter.</li>
+      <li>I just don't like the idea of my personal assistant knowing more about my habits than I do, and storing that somewhere I can't see.</li>
+    </ul>
+
+    <p>Ollama solved the LLM problem nicely. You pull a model, it runs locally, and the API is simple. I went with <code>llama3.2:3b</code> as the default because it's fast on modest hardware and surprisingly good for day-to-day use. But any model works — you can switch in settings.</p>
+
+    <h2>The architecture</h2>
+
+    <p>I planned this properly before writing a line of code, which is unusual for me. The spec was about 40 pages. I broke it into 21 milestones and built one at a time.</p>
+
+    <p>The core is an <strong>AppContext</strong> — a central object that owns everything: the event bus, settings, plugin manager, memory store, LLM client, and all the observer modules. Everything talks to each other through an <strong>event bus</strong> with typed events like <code>user_message</code>, <code>active_window_changed</code>, <code>work_mode_enabled</code>, etc. Nothing is tightly coupled. Plugins subscribe to events; core systems emit them.</p>
+
+    <pre><code># The event bus is simple but it made everything else possible
+event_bus.emit("active_window_changed", {
+    "title": "VS Code",
+    "process": "Code.exe"
+})</code></pre>
+
+    <p>The <strong>observer</strong> layer reads system state — active window, idle time, CPU/RAM, fullscreen detection — and emits events. No screenshots, no OCR, no keylogging. Just the stuff the OS makes available.</p>
+
+    <h2>The plugin system</h2>
+
+    <p>This was the part I was most pleased with. Every plugin is a class in its own folder:</p>
+
+    <pre><code>plugins/
+  session_awareness/
+    plugin.py
+    config.json
+  voice_output/
+    plugin.py
+    config.json</code></pre>
+
+    <p>Each plugin implements a simple interface:</p>
+
+    <pre><code>class Plugin(PluginBase):
+    name = "session_awareness"
+    enabled_by_default = True
+
+    def on_start(self, app): ...
+    def on_stop(self, app): ...
+    def on_event(self, event, data): ...
+    def get_commands(self): return []</code></pre>
+
+    <p>The plugin manager discovers them automatically, loads them in isolation so a crash in one doesn't kill the app, and respects all the mode rules — plugins don't run during Work Mode, Private Mode, Game Safe Mode, or Focus Mode unless the user explicitly allows it.</p>
+
+    <p>I shipped 8 plugins:</p>
+
+    <ul>
+      <li><strong>Session Awareness</strong> — detects whether you're coding, gaming, or browsing</li>
+      <li><strong>Insights</strong> — end-of-day and weekly summaries</li>
+      <li><strong>Scheduled Reminders</strong> — natural language reminders (<code>/remind me at 6pm to check the build</code>)</li>
+      <li><strong>Process Awareness</strong> — what's running, what's using the internet</li>
+      <li><strong>Audio Awareness</strong> — detects if audio is playing, so it doesn't interrupt calls</li>
+      <li><strong>Voice Output</strong> — speaks replies using Windows SAPI</li>
+      <li><strong>Extended System Stats</strong> — GPU temp, per-process usage, disk, network</li>
+      <li><strong>Hardware Awareness</strong> — USB events, battery warnings, monitors</li>
+    </ul>
+
+    <h2>The mode system</h2>
+
+    <p>This was non-negotiable from the start. Four modes, all core (not plugins), all overriding everything:</p>
+
+    <p><strong>Work Mode</strong> — triggers automatically when Omnissa Horizon Client (or other configured apps) is detected. Shuts everything down. No greetings, no notifications, no logging of window titles, no LLM calls unless you manually open chat. I added this because I work from home through a VDI client and did not want to risk anything leaking.</p>
+
+    <p><strong>Private Mode</strong> — same idea, triggered manually or by keyword. Hamster AI goes completely silent and stores nothing.</p>
+
+    <p><strong>Focus Mode</strong> — <code>/focus 30</code> gives you 30 minutes of quiet. No interruptions. You can still open chat manually.</p>
+
+    <p><strong>Game Safe Mode</strong> — activates when it detects anti-cheat processes (Vanguard, EasyAntiCheat, BattlEye, etc.). The app becomes just a background tray process. No overlays, no plugins, nothing that could look suspicious to an anti-cheat scanner.</p>
+
+    <div class="callout">
+      Anti-cheat safety was actually the most important requirement. The app never injects into processes, hooks graphics APIs, reads game memory, or automates input. It's designed to be completely invisible.
+    </div>
+
+    <h2>The memory system</h2>
+
+    <p>Everything goes into a local SQLite database at <code>data/hamster_ai.db</code>. Memories, notes, todos, activity logs, settings, plugin data — all of it. The schema has proper migrations so it can evolve without breaking existing installs.</p>
+
+    <p>The LLM gets relevant memories injected into its context window automatically — so if you told Hamster AI your name three weeks ago, it still knows. You can search memories, delete them, or wipe the whole database if you want a clean slate.</p>
+
+    <p>One thing I was particular about: it never silently saves inferred preferences. If it notices a pattern ("you always seem to want shorter answers"), it asks before saving anything. You're in control of what it remembers.</p>
+
+    <h2>The UI</h2>
+
+    <p>PySide6 (Qt for Python) for everything. A system tray app with:</p>
+
+    <ul>
+      <li>A chat window — the main interface</li>
+      <li>A settings window with tabs for General, Appearance, Modes, and Notifications</li>
+      <li>A plugins window for toggling optional features</li>
+      <li>A diagnostics window with health checks, logs, and self-fix suggestions</li>
+      <li>A mini widget — a small always-on-top input bar that sits in a corner</li>
+      <li>Mini response popups that appear above the widget with a 10-second countdown</li>
+    </ul>
+
+    <p>The theme is warm beige — <code>#FAF7F2</code> background, <code>#A67C52</code> accent, rounded corners. I wanted it to feel friendly, not corporate. It has three themes: Soft Hamster Minimal (default), Dark Hamster, and High Contrast.</p>
+
+    <h2>The hamster</h2>
+
+    <p>The tray icon is a little procedurally drawn hamster face — ears, cheeks, nose, all drawn with QPainter at runtime. No image files. It goes grey when the app is paused. It was completely unnecessary and I have no regrets.</p>
+
+    <h2>Testing</h2>
+
+    <p>21 milestone test files, 283 checks, all passing. Each milestone has its own smoke test file that imports the relevant modules and verifies the interface contracts. It's not unit testing in the traditional sense — more like milestone regression testing. Good enough that I can refactor with confidence.</p>
+
+    <pre><code>--- Hamster AI Milestone 1 Smoke Test ---
+  [PASS] AppContext can be created
+  [PASS] event_bus exists on context
+  [PASS] settings exists on context
+  [PASS] plugin_manager exists on context
+  ...
+  14 passed  |  0 failed</code></pre>
+
+    <h2>What I'd do differently</h2>
+
+    <p>Honestly not much. The spec-first approach worked really well. Having 21 clear milestones meant I never got lost. The event bus architecture meant every new feature slotted in cleanly without touching existing code.</p>
+
+    <p>If I were doing it again I'd probably think harder about the plugin data isolation earlier — there were a couple of places where plugins were reaching into core state they shouldn't have. Fixed now, but it would have been cleaner to design the boundary more carefully from the start.</p>
+
+    <h2>What's next</h2>
+
+    <p>A proper installer — a PySide6 QWizard that checks prerequisites, lets you pick plugins, and sets up startup with Windows. Then probably more plugins. Maybe a web search plugin if I can figure out how to do it in a way that feels honest about what's happening.</p>
+
+    <p>The project is open source under GPL v3. The full documentation is at <a href="https://hamster.adameaston.co.uk" target="_blank">hamster.adameaston.co.uk</a>. The code is on <a href="https://github.com/Easton99/hamster-ai" target="_blank">GitHub</a>.</p>
+
+    <hr>
+
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; padding-top: 8px;">
+      <a href="https://hamster.adameaston.co.uk" class="btn btn-primary" target="_blank">Documentation ↗</a>
+      <a href="https://github.com/Easton99/hamster-ai" class="btn btn-ghost" target="_blank">GitHub ↗</a>
+      <a href="/blog/" class="btn btn-ghost">← Back to devlog</a>
+    </div>
+
+  </div>
+
+</div>
+
+<footer>
+  <p>Built by Adam Easton &mdash; <a href="https://github.com/Easton99" target="_blank">GitHub</a> &middot; <a href="mailto:adameaston99@gmail.com">Email</a></p>
+</footer>
+
+<script src="../assets/js/site.js"></script>
+</body>
+</html>
